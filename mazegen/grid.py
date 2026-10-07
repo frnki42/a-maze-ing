@@ -23,10 +23,18 @@ _OPPOSITE: dict[Direction, Direction] = {
     Direction.W: Direction.E,
 }
 
-# y grows downwards (row 0 is top)
+
 _DELTA: dict[Direction, tuple[int, int]] = {
     Direction.N: (0, -1),
     Direction.E: (1, 0),
     Direction.S: (0, 1),
     Direction.W: (-1, 0),
 }
+
+
+DIRECTIONS: tuple[Direction, ...] = (
+    Direction.N,
+    Direction.E,
+    Direction.S,
+    Direction.W,
+)
