@@ -63,3 +63,11 @@ class Grid:
 
     def in_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self._width and 0 <= y < self._height
+
+    def walls(self, x: int, y: int) -> int:
+        if not self.in_bounds(x, y):
+            raise IndexError(
+                f"cell ({x}, {y}) is outside the "
+                f"{self._width}x{self._height} grid"
+            )
+        return self._cells[y][x]
