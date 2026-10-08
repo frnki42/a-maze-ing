@@ -79,3 +79,7 @@ class Grid:
         neighbour = self.walls(nx, ny)
         self._cells[y][x] = int(cell & ~direction)
         self._cells[ny][nx] = int(neighbour & ~direction.opposite)
+
+    def open_directions(self, x: int, y: int) -> list[Direction]:
+        cell = self.walls(x, y)
+        return [d for d in DIRECTIONS if not cell & d]
