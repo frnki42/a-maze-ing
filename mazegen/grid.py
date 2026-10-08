@@ -71,3 +71,11 @@ class Grid:
                 f"{self._width}x{self._height} grid"
             )
         return self._cells[y][x]
+
+    def carve_wall(self, x: int, y: int, direction: Direction) -> None:
+        dx, dy = direction.delta
+        nx, ny = x + dx, y + dy
+        cell = self.walls(x, y)
+        neighbour = self.walls(nx, ny)
+        self._cells[y][x] = int(cell & ~direction)
+        self._cells[ny][nx] = int(neighbour & ~direction.opposite)
