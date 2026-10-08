@@ -38,3 +38,16 @@ DIRECTIONS: tuple[Direction, ...] = (
     Direction.S,
     Direction.W,
 )
+
+CLOSED_CELL: int = int(
+    Direction.N | Direction.E | Direction.S | Direction.W
+)
+
+
+class Grid:
+    def __init__(self, width: int, height: int) -> None:
+        self.width = width
+        self.height = height
+        self._cells: list[list[int]] = [
+            [CLOSED_CELL] * self.width for _ in range(self.height)
+        ]
