@@ -39,6 +39,7 @@ DIRECTIONS: tuple[Direction, ...] = (
     Direction.W,
 )
 
+
 CLOSED_CELL: int = int(
     Direction.N | Direction.E | Direction.S | Direction.W
 )
@@ -46,8 +47,19 @@ CLOSED_CELL: int = int(
 
 class Grid:
     def __init__(self, width: int, height: int) -> None:
-        self.width = width
-        self.height = height
+        self._width = width
+        self._height = height
         self._cells: list[list[int]] = [
-            [CLOSED_CELL] * self.width for _ in range(self.height)
+            [CLOSED_CELL] * self._width for _ in range(self._height)
         ]
+
+    @property
+    def width(self) -> int:
+        return self._width
+
+    @property
+    def height(self) -> int:
+        return self._height
+
+    def in_bounds(self, x: int, y: int) -> bool:
+        return 0 <= x < self._width and 0 <= y < self._height
