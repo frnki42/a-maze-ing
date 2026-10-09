@@ -71,6 +71,9 @@ class MazeGenerator:
         _check_cell("exit", exit_, width, height)
         if entry == exit_:
             raise ValueError("entry and exit must be different")
+        pattern = _pattern_cells(width, height)
+        if entry in pattern or exit_ in pattern:
+            raise ValueError("entry and exit must be outside the 42 pattern")
         if seed is None:
             seed = random.randrange(SEED_LIMIT)
         self._width = width
@@ -79,11 +82,16 @@ class MazeGenerator:
         self._exit = exit_
         self._perfect = perfect
         self._seed = seed
+        self._pattern = pattern
         self._grid: Grid | None = None
 
     @property
     def seed(self) -> int:
         return self._seed
+
+    @property
+    def pattern_cells(self) -> set[tuple[int, int]]:
+        return set(self._pattern)
 
     @property
     def grid(self) -> Grid:
@@ -95,7 +103,8 @@ class MazeGenerator:
         rng = random.Random(self._seed)
         grid = Grid(self._width, self._height)
         start = self._entry
-        visited: set[tuple[int, int]] = {start}
+        visited: set[tuple[int, int]] = set(self._pattern)
+        visited.add(start)
         stack: list[tuple[int, int]] = [start]
         while stack:
             x, y = stack[-1]
