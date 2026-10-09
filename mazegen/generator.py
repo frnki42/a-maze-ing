@@ -21,6 +21,18 @@ def _unvisited_directions(
     return unvisited_directions
 
 
+def _check_cell(
+    name: str,
+    cell: tuple[int, int],
+    width: int,
+    height: int,
+) -> None:
+    x, y = cell
+    if not (0 <= x < width and 0 <= y < height):
+        raise ValueError(
+            f"{name} {cell} is outside the {width}x{height} maze")
+
+
 class MazeGenerator:
     def __init__(
         self,
@@ -31,13 +43,19 @@ class MazeGenerator:
         perfect: bool = False,
         seed: int | None = None,
     ) -> None:
+        if width < 1 or height < 1:
+            raise ValueError(f"invalid maze size {width}x{height}")
+        _check_cell("entry", entry, width, height)
+        _check_cell("exit", exit_, width, height)
+        if entry == exit_:
+            raise ValueError("entry and exit must be different")
+        if seed is None:
+            seed = random.randrange(SEED_LIMIT)
         self._width = width
         self._height = height
         self._entry = entry
         self._exit = exit_
         self._perfect = perfect
-        if seed is None:
-            seed = random.randrange(SEED_LIMIT)
         self._seed = seed
         self._grid: Grid | None = None
 
