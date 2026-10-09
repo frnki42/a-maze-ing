@@ -55,6 +55,15 @@ def _pattern_cells(width: int, height: int) -> set[tuple[int, int]]:
     return cells
 
 
+def _dead_ends(grid: Grid) -> list[tuple[int, int]]:
+    dead_ends: list[tuple[int, int]] = []
+    for y in range(grid.height):
+        for x in range(grid.width):
+            if len(grid.open_directions(x, y)) == 1:
+                dead_ends.append((x, y))
+    return dead_ends
+
+
 class MazeGenerator:
     def __init__(
         self,
