@@ -4,6 +4,13 @@ from .grid import DIRECTIONS, Direction, Grid
 
 
 SEED_LIMIT = 2**32
+PATTERN_42 = (
+    "#...###",
+    "#.....#",
+    "###.###",
+    "..#.#..",
+    "..#.###",
+)
 
 
 def _unvisited_directions(
@@ -31,6 +38,21 @@ def _check_cell(
     if not (0 <= x < width and 0 <= y < height):
         raise ValueError(
             f"{name} {cell} is outside the {width}x{height} maze")
+
+
+def _pattern_cells(width: int, height: int) -> set[tuple[int, int]]:
+    pattern_width = len(PATTERN_42[0])
+    pattern_height = len(PATTERN_42)
+    if width < pattern_width + 2 or height < pattern_height + 2:
+        return set()
+    origin_x = width // 2 - pattern_width // 2
+    origin_y = height // 2 - pattern_height // 2
+    cells: set[tuple[int, int]] = set()
+    for row in range(pattern_height):
+        for col in range(pattern_width):
+            if PATTERN_42[row][col] == "#":
+                cells.add((origin_x + col, origin_y + row))
+    return cells
 
 
 class MazeGenerator:
