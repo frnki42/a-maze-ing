@@ -64,6 +64,29 @@ def _dead_ends(grid: Grid) -> list[tuple[int, int]]:
     return dead_ends
 
 
+def _is_open_block(grid: Grid, left: int, top: int) -> bool:
+    for y in range(top, top + 3):
+        for x in range(left, left + 3):
+            open_dirs = grid.open_directions(x, y)
+            if x < left + 2 and Direction.E not in open_dirs:
+                return False
+            if y < top + 2 and Direction.S not in open_dirs:
+                return False
+    return True
+
+
+def _has_open_area(grid: Grid, x: int, y: int) -> bool:
+    for top in range(y - 2, y + 1):
+        for left in range(x - 2, x + 1):
+            if not grid.in_bounds(left, top):
+                continue
+            if not grid.in_bounds(left + 2, top + 2):
+                continue
+            if _is_open_block(grid, left, top):
+                return True
+    return False
+
+
 class MazeGenerator:
     def __init__(
         self,
