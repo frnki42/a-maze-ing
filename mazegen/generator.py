@@ -178,5 +178,7 @@ class MazeGenerator:
                 stack.append(neighbour)
             else:
                 stack.pop()
+        if not self._perfect:
+            _braid(grid, self._pattern, rng)
         self._grid = grid
         return grid
