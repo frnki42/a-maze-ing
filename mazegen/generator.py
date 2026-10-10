@@ -87,6 +87,34 @@ def _has_open_area(grid: Grid, x: int, y: int) -> bool:
     return False
 
 
+def _braid(
+    grid: Grid,
+    pattern: set[tuple[int, int]],
+    rng: random.Random,
+) -> None:
+    for x, y in _dead_ends(grid):
+        if len(grid.open_directions(x, y)) != 1:
+            continue
+        candidates: list[Direction] = []
+        for direction in DIRECTIONS:
+            dx, dy = direction.delta
+            nx, ny = x + dx, y + dy
+            if not grid.in_bounds(nx, ny):
+                continue
+            if (nx, ny) in pattern:
+                continue
+            if direction in grid.open_directions(x, y):
+                continue
+            candidates.append(direction)
+        rng.shuffle(candidates)
+        for direction in candidates:
+            grid.carve_wall(x, y, direction)
+            if _has_open_area(grid, x, y):
+                grid.close_wall(x, y, direction)
+            else:
+                break
+
+
 class MazeGenerator:
     def __init__(
         self,
