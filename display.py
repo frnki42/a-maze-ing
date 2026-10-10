@@ -12,6 +12,7 @@ class Kind(IntEnum):
     ENTRY = 2
     EXIT = 3
     PATTERN = 4
+    PATH = 5
 
 
 def _to_canvas(x: int, y: int) -> tuple[int, int]:
@@ -19,7 +20,8 @@ def _to_canvas(x: int, y: int) -> tuple[int, int]:
 
 
 def build_canvas(grid: Grid) -> list[list[Kind]]:
-    canvas_width, canvas_height = _to_canvas(grid.width, grid.height)
+    canvas_width = grid.width * 2 + 1
+    canvas_height = grid.height * 2 + 1
     canvas: list[list[Kind]] = []
     for _ in range(canvas_height):
         row: list[Kind] = []
@@ -45,6 +47,21 @@ def paint_cell(
 ) -> None:
     cx, cy = _to_canvas(*cell)
     canvas[cy][cx] = kind
+
+
+def paint_path(
+    canvas: list[list[Kind]],
+    entry: tuple[int, int],
+    path: list[Direction],
+) -> None:
+    cx, cy = _to_canvas(*entry)
+    canvas[cy][cx] = Kind.PATH
+    for direction in path:
+        dx, dy = direction.delta
+        canvas[cy + dy][cx + dx] = Kind.PATH
+        cx += 2 * dx
+        cy += 2 * dy
+        canvas[cy][cx] = Kind.PATH
 
 
 def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
