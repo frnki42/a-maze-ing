@@ -3,14 +3,23 @@ from enum import IntEnum
 from mazegen.grid import Direction, Grid
 
 
+RESET = "\033[0m"
+
+
 class Kind(IntEnum):
     WALL = 0
     FLOOR = 1
+    ENTRY = 2
+    EXIT = 3
+    PATTERN = 4
+
+
+def _to_canvas(x: int, y: int) -> tuple[int, int]:
+    return x * 2 + 1, y * 2 + 1
 
 
 def build_canvas(grid: Grid) -> list[list[Kind]]:
-    canvas_width = grid.width * 2 + 1
-    canvas_height = grid.height * 2 + 1
+    canvas_width, canvas_height = _to_canvas(grid.width, grid.height)
     canvas: list[list[Kind]] = []
     for _ in range(canvas_height):
         row: list[Kind] = []
@@ -19,8 +28,7 @@ def build_canvas(grid: Grid) -> list[list[Kind]]:
         canvas.append(row)
     for y in range(grid.height):
         for x in range(grid.width):
-            cx = x * 2 + 1
-            cy = y * 2 + 1
+            cx, cy = _to_canvas(x, y)
             canvas[cy][cx] = Kind.FLOOR
             open_dirs = grid.open_directions(x, y)
             if Direction.E in open_dirs:
@@ -30,7 +38,13 @@ def build_canvas(grid: Grid) -> list[list[Kind]]:
     return canvas
 
 
-RESET = "\033[0m"
+def paint_cell(
+    canvas: list[list[Kind]],
+    cell: tuple[int, int],
+    kind: Kind,
+) -> None:
+    cx, cy = _to_canvas(*cell)
+    canvas[cy][cx] = kind
 
 
 def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
