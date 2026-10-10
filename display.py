@@ -28,3 +28,16 @@ def build_canvas(grid: Grid) -> list[list[Kind]]:
             if Direction.S in open_dirs:
                 canvas[cy + 1][cx] = Kind.FLOOR
     return canvas
+
+
+RESET = "\033[0m"
+
+
+def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
+    parts: list[str] = []
+    for row in canvas:
+        for kind in row:
+            color = palette[kind]
+            parts.append(f"\033[48;5;{color}m  ")
+        parts.append(RESET + "\n")
+    return "".join(parts)
