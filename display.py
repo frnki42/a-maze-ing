@@ -15,6 +15,34 @@ class Kind(IntEnum):
     PATH = 5
 
 
+PALETTES: list[dict[Kind, int]] = [
+    {
+        Kind.WALL: 252,
+        Kind.FLOOR: 234,
+        Kind.ENTRY: 201,
+        Kind.EXIT: 196,
+        Kind.PATTERN: 220,
+        Kind.PATH: 45,
+    },
+    {
+        Kind.WALL: 172,
+        Kind.FLOOR: 233,
+        Kind.ENTRY: 201,
+        Kind.EXIT: 196,
+        Kind.PATTERN: 223,
+        Kind.PATH: 228,
+    },
+    {
+        Kind.WALL: 42,
+        Kind.FLOOR: 24,
+        Kind.ENTRY: 204,
+        Kind.EXIT: 224,
+        Kind.PATTERN: 242,
+        Kind.PATH: 244,
+    },
+]
+
+
 def _to_canvas(x: int, y: int) -> tuple[int, int]:
     return x * 2 + 1, y * 2 + 1
 
