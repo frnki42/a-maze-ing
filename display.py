@@ -4,6 +4,14 @@ from mazegen.grid import Direction, Grid
 
 
 RESET = "\033[0m"
+CLEAR = "\033[H\033[2J"
+MENU = (
+    "=== A-Maze-ing ===\n"
+    "1. Re-generate a new maze\n"
+    "2. Show / Hide the shortest path\n"
+    "3. Rotate the wall colours\n"
+    "4. Quit\n"
+)
 
 
 class Kind(IntEnum):
@@ -100,3 +108,8 @@ def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
             parts.append(f"\033[48;5;{color}m  ")
         parts.append(RESET + "\n")
     return "".join(parts)
+
+
+def draw(canvas: list[list[Kind]], palette: dict[Kind, int]) -> None:
+    print(CLEAR + render(canvas, palette), end="")
+    print(MENU)
