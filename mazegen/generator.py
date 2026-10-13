@@ -121,25 +121,25 @@ class MazeGenerator:
         width: int,
         height: int,
         entry: tuple[int, int],
-        exit_: tuple[int, int],
+        exit_cell: tuple[int, int],
         perfect: bool = False,
         seed: int | None = None,
     ) -> None:
         if width < 1 or height < 1:
             raise ValueError(f"invalid maze size {width}x{height}")
         _check_cell("entry", entry, width, height)
-        _check_cell("exit", exit_, width, height)
-        if entry == exit_:
+        _check_cell("exit", exit_cell, width, height)
+        if entry == exit_cell:
             raise ValueError("entry and exit must be different")
         pattern = _pattern_cells(width, height)
-        if entry in pattern or exit_ in pattern:
+        if entry in pattern or exit_cell in pattern:
             raise ValueError("entry and exit must be outside the 42 pattern")
         if seed is None:
             seed = random.randrange(SEED_LIMIT)
         self._width = width
         self._height = height
         self._entry = entry
-        self._exit = exit_
+        self._exit = exit_cell
         self._perfect = perfect
         self._seed = seed
         self._pattern = pattern
