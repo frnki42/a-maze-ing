@@ -120,6 +120,24 @@ def paint_path(
         canvas[cy][cx] = Kind.PATH
 
 
+def _compose(
+        grid: Grid,
+        entry: tuple[int, int],
+        exit_cell: tuple[int, int],
+        pattern: set[tuple[int, int]],
+        path: list[Direction],
+        show_path: bool,
+) -> list[list[Kind]]:
+    canvas = build_canvas(grid)
+    if show_path:
+        paint_path(canvas, entry, path)
+    paint_cell(canvas, entry, Kind.ENTRY)
+    paint_cell(canvas, exit_cell, Kind.EXIT)
+    for cell in pattern:
+        paint_cell(canvas, cell, Kind.PATTERN)
+    return canvas
+
+
 def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
     parts: list[str] = []
     for row in canvas:
