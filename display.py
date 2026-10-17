@@ -1,5 +1,6 @@
 from enum import Enum, IntEnum
 
+from mazegen import MazeGenerator
 from mazegen.grid import Direction, Grid
 
 
@@ -151,3 +152,33 @@ def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
 def draw(canvas: list[list[Kind]], palette: dict[Kind, int]) -> None:
     print(CLEAR + render(canvas, palette), end="")
     print(MENU, end="")
+
+
+def run(
+    width: int,
+    height: int,
+    entry: tuple[int, int],
+    exit_cell: tuple[int, int],
+    perfect: bool,
+    seed: int | None = None,
+) -> None:
+    gen = MazeGenerator(width, height, entry, exit_cell, perfect, seed)
+    grid = gen.generate()
+    path: list[Direction] = []
+    show_path = False
+    palette_idx = 0
+    while True:
+        canvas = _compose(
+                grid, entry, exit_cell, gen.pattern_cells, path, show_path,
+        )
+        draw(canvas, PALETTES[palette_idx])
+        choice = _read_choice()
+        if choice is Choice.QUIT:
+            break
+        elif choice is Choice.REGENERATE:
+            gen = MazeGenerator(width, height, entry, exit_cell, perfect)
+            grid = gen.generate()
+        elif choice is Choice.TOGGLE_PATH:
+            show_path = not show_path
+        elif choice is Choice.ROTATE_COLORS:
+            palette_idx = (palette_idx + 1) % len(PALETTES)
