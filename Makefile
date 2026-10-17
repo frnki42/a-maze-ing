@@ -26,7 +26,7 @@ debug: $(MARKER)
 	$(VENV_PY) -m pdb a_maze_ing.py $(CONFIG)
 
 clean:
-	rm -rf .mypy_cache __pycache__ */__pycache__
+	rm -rf .mypy_cache __pycache__ */__pycache__ dist/ build/ *.egg-info
 
 lint: $(MARKER)
 	$(VENV_PY) -m flake8 .
