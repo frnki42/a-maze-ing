@@ -1,10 +1,11 @@
-from enum import IntEnum
+from enum import Enum, IntEnum
 
 from mazegen.grid import Direction, Grid
 
 
 RESET = "\033[0m"
 CLEAR = "\033[H\033[2J"
+PROMPT = "Choice? (1-4): "
 MENU = (
     "=== A-Maze-ing ===\n"
     "1. Re-generate a new maze\n"
@@ -12,6 +13,13 @@ MENU = (
     "3. Rotate the wall colours\n"
     "4. Quit\n"
 )
+
+
+class Choice(Enum):
+    REGENERATE = "1"
+    TOGGLE_PATH = "2"
+    ROTATE_COLORS = "3"
+    QUIT = "4"
 
 
 class Kind(IntEnum):
@@ -46,13 +54,25 @@ PALETTES: list[dict[Kind, int]] = [
         Kind.ENTRY: 204,
         Kind.EXIT: 224,
         Kind.PATTERN: 242,
-        Kind.PATH: 244,
+        Kind.PATH: 142,
     },
 ]
 
 
 def _to_canvas(x: int, y: int) -> tuple[int, int]:
     return x * 2 + 1, y * 2 + 1
+
+
+def _read_choice() -> Choice | None:
+    try:
+        choice = input(PROMPT)
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return Choice.QUIT
+    try:
+        return Choice(choice.strip())
+    except ValueError:
+        return None
 
 
 def build_canvas(grid: Grid) -> list[list[Kind]]:
@@ -112,4 +132,4 @@ def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
 
 def draw(canvas: list[list[Kind]], palette: dict[Kind, int]) -> None:
     print(CLEAR + render(canvas, palette), end="")
-    print(MENU)
+    print(MENU, end="")
