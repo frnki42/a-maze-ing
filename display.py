@@ -122,12 +122,12 @@ def paint_path(
 
 
 def _compose(
-        grid: Grid,
-        entry: tuple[int, int],
-        exit_cell: tuple[int, int],
-        pattern: set[tuple[int, int]],
-        path: list[Direction],
-        show_path: bool,
+    grid: Grid,
+    entry: tuple[int, int],
+    exit_cell: tuple[int, int],
+    pattern: set[tuple[int, int]],
+    path: list[Direction],
+    show_path: bool,
 ) -> list[list[Kind]]:
     canvas = build_canvas(grid)
     if show_path:
@@ -169,7 +169,7 @@ def run(
     palette_idx = 0
     while True:
         canvas = _compose(
-                grid, entry, exit_cell, gen.pattern_cells, path, show_path,
+            grid, entry, exit_cell, gen.pattern_cells, path, show_path,
         )
         draw(canvas, PALETTES[palette_idx])
         choice = _read_choice()
