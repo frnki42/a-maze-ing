@@ -144,6 +144,42 @@ def _astar(
     return []
 
 
+def _dfs(
+    entry: tuple[int, int],
+    goal: tuple[int, int],
+    grid: Grid,
+    path: list[Direction],
+    all_paths: list[list[Direction]],
+    visited: set[tuple[int, int]],
+):
+    """Finds all simple paths from entry to goal using DFS backtracking.
+
+    Args:
+        entry: The current (x, y) coordinates in the grid.
+        goal: The target (x, y) destination coordinates.
+        grid: The Grid instance containing open passages.
+        path: The running list of Direction steps taken on the current branch.
+        all_paths: The accumulator list where completed paths are stored.
+        visited: Set of coordinate pairs currently on the active search path
+            to prevent revisiting cells and forming cycles.
+    """
+    if entry[0] == goal[0] and entry[1] == goal[1]:
+        all_paths.append(path.copy())
+        return
+    else:
+        x, y = entry
+        possible_moves = grid.open_directions(x, y)
+        for move in possible_moves:
+            delta_x, delta_y = move.delta
+            new_x, new_y = x + delta_x, y + delta_y
+            if (new_x, new_y) not in visited:
+                path.append(move)
+                _dfs((new_x, new_y), goal, grid, path, all_paths)
+                path.pop()
+
+    visited.remove(entry)
+
+
 @overload
 def find_path(
     grid: Grid, config: Config, all_paths: Literal[True]
@@ -176,6 +212,8 @@ def find_path(
         if config.perfect:
             return [_astar(grid, config.entry, config.goal)]
         else:
-            pass
+            all_paths: list[list[Direction]] = []
+            _dfs(config.entry, config.goal, grid, [], all_paths)
+            return all_paths
     else:
         return _astar(grid, config.entry, config.goal)
