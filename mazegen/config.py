@@ -3,10 +3,11 @@ import sys
 
 class Config:
     """Config handles the configuration for the maze-generation."""
+
     width: int
     heigth: int
     entry: tuple[int, int]
-    exit: tuple[int, int]
+    goal: tuple[int, int]
     output_file: str
     perfect: bool
 
@@ -31,7 +32,7 @@ class Config:
                 line = config_file.readline()
                 if not line:
                     break
-                if line.startswith("#") or line == '\n':
+                if line.startswith("#") or line == "\n":
                     continue
                 key, value = line.split(sep="=")
                 key = key.strip(" \n\t")
@@ -47,7 +48,7 @@ class Config:
                         self.entry = (int(x), int(y))
                     case "EXIT":
                         x, y, _ = value.split(",")
-                        self.exit = (int(x), int(y))
+                        self.goal = (int(x), int(y))
                     case "OUTPUT_FILE":
                         self.output_file = value
                     case "PERFECT":
@@ -58,34 +59,39 @@ class Config:
                             self.perfect = False
                         else:
                             raise ValueError(
-                                "PERFECT needs to be either True or False.")
+                                "PERFECT needs to be either True or False."
+                            )
                     case _:
                         print(
                             f"WARN: Config field {key} is not supported.",
-                            file=sys.stderr)
+                            file=sys.stderr,
+                        )
 
     def _validate_config(self) -> None:
         """Protected method for validating field values."""
-        if not all(hasattr(self, attribute) for attribute
-                   in self.__annotations__):
+        if not all(
+            hasattr(self, attribute) for attribute in self.__annotations__
+        ):
             raise AttributeError(
                 "Missing values in the configuration file.",
                 "Attributes required: ",
-                [attr.upper() for attr in
-                 self.__annotations__.keys()])
+                [attr.upper() for attr in self.__annotations__.keys()],
+            )
         if self.width < 2:
             raise ValueError("WIDTH needs to be at least two.")
         if self.heigth < 2:
             raise ValueError("HEIGHT needs to be at least two.")
         if len(self.entry) != 2:
             raise ValueError(
-                "ENTRY needs to have exactly two coordinates (x, y)")
-        if len(self.exit) != 2:
+                "ENTRY needs to have exactly two coordinates (x, y)"
+            )
+        if len(self.goal) != 2:
             raise ValueError(
-                "EXIT needs to have exactly two coordinates (x, y)")
-        if self.exit[0] > self.width:
+                "EXIT needs to have exactly two coordinates (x, y)"
+            )
+        if self.goal[0] > self.width:
             raise ValueError("EXIT cannot be outside the maze (width).")
-        if self.exit[1] > self.heigth:
+        if self.goal[1] > self.heigth:
             raise ValueError("EXIT cannot be outside the maze (heigth).")
         if self.entry[0] > self.width:
             raise ValueError("ENTRY cannot be outside the maze (width).")
