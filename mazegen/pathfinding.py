@@ -7,6 +7,15 @@ from .grid import DIRECTIONS, Direction, Grid
 
 
 class _Cell:
+    """Represents a node in the grid for the A* search algorithm.
+
+    Attributes:
+        cost: The path cost from the start position to this cell (g-score).
+        estimated_cost: The heuristic estimated cost from this cell to the goal
+            (h-score).
+        parent: The (x, y) coordinates of the preceding cell in the path.
+    """
+
     cost: int
     parent: tuple[int, int] | None
     estimated_cost: int
@@ -16,12 +25,27 @@ class _Cell:
         cost: int,
         estimated_cost: int,
         parent: tuple[int, int] | None = None,
-    ):
+    ) -> None:
+        """Initializes a _Cell instance.
+
+        Args:
+            cost: The path cost from the start position to this cell.
+            estimated_cost: The heuristic estimated cost from this cell to the
+                goal.
+            parent: The (x, y) coordinates of the preceding cell, or None if
+                this is the starting cell. Defaults to None.
+        """
         self.cost = cost
         self.estimated_cost = estimated_cost
         self.parent = parent
 
     def total_estimated_cost(self) -> int:
+        """Calculates the total evaluation function value (f-score).
+
+        Returns:
+            The sum of the exact path cost and estimated heuristic cost
+            (cost + estimated_cost).
+        """
         return self.cost + self.estimated_cost
 
 
@@ -29,6 +53,19 @@ def _trace_path(
     cell_details: list[list[_Cell | None]],
     goal: tuple[int, int],
 ) -> list[Direction]:
+    """Reconstructs the sequence of directional moves from start to goal.
+
+    Backtracks through parent references in `cell_details` starting at the
+    goal coordinates until reaching the start node (a cell without a parent).
+
+    Args:
+        cell_details: A 2D list indexed by `[x][y]` storing `_Cell` metadata.
+        goal: The (x, y) coordinate pair of the destination cell.
+
+    Returns:
+        A list of Direction enums representing the forward path from start to
+        goal.
+    """
     path = []
     current = goal
     while True:
@@ -45,6 +82,19 @@ def _trace_path(
 def _astar(
     grid: Grid, entry: tuple[int, int], goal: tuple[int, int]
 ) -> list[Direction]:
+    """Executes the A* pathfinding algorithm to find the shortest path.
+
+    Uses the Manhattan distance heuristic on an orthogonal grid.
+
+    Args:
+        grid: The Grid instance containing maze geometry and open passages.
+        entry: The (x, y) coordinates of the starting cell.
+        goal: The (x, y) coordinates of the target cell.
+
+    Returns:
+        A list of Direction steps from entry to goal, or an empty list if no
+        path exists.
+    """
     counter = count()
     openlist = [(0, next(counter), (entry[0], entry[1]))]
     closedlist = [
@@ -109,6 +159,19 @@ def find_path(
 def find_path(
     grid: Grid, config: Config, all_paths: bool = False
 ) -> list[Direction] | list[list[Direction]]:
+    """Finds path(s) through a grid between configured entry and goal points.
+
+    Args:
+        grid: The Grid environment to navigate.
+        config: Configuration containing entry/goal coordinates and maze
+            properties (e.g., whether the maze is `perfect`).
+        all_paths: If True, returns a list containing all viable paths. If
+            False, returns a single path. Defaults to False.
+
+    Returns:
+        A list of Direction steps if `all_paths` is False, or a list of such
+        paths if `all_paths` is True.
+    """
     if all_paths:
         if config.perfect:
             return [_astar(grid, config.entry, config.goal)]
