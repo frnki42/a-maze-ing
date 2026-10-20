@@ -88,6 +88,16 @@ class Config:
                             raise ValueError(
                                 "PERFECT needs to be either True or False."
                             )
+                    case "ALL_PATHS":
+                        print(value)
+                        if value == "True":
+                            self.all_paths = True
+                        elif value == "False":
+                            self.all_paths = False
+                        else:
+                            raise ValueError(
+                                "PERFECT needs to be either True or False."
+                            )
                     case _:
                         print(
                             f"WARN: Config field '{key}' is not supported.",
@@ -132,3 +142,6 @@ class Config:
             raise ValueError("ENTRY cannot be outside the maze (width).")
         if self.entry[1] >= self.heigth or self.entry[1] < 0:
             raise ValueError("ENTRY cannot be outside the maze (heigth).")
+        if self.all_paths and self.width * self.heigth > 400:
+            raise ValueError("If ALL_PATHS is set to True the maze can at"
+                "not have an area larger than 400. (heigth * width)")
