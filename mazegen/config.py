@@ -55,10 +55,17 @@ class Config:
                     break
                 if line.startswith("#") or line == "\n":
                     continue
-                key, value = line.split(sep="=")
+                try:
+                    key, value = line.split(sep="=")
+                except ValueError:
+                    raise ValueError(
+                       "Invalid line in config.txt."
+                       "For configuration use the <FIELD>=<VALUE> notation."
+                       "Line-comments must start with #"
+                       "Empty lines cannot contain any whitespace."
+                    )
                 key = key.strip(" \n\t")
                 value = value.strip(" \n\t")
-                print(f"'{key}', '{value}'")
                 match key:
                     case "WIDTH":
                         self.width = int(value)
@@ -73,7 +80,6 @@ class Config:
                     case "OUTPUT_FILE":
                         self.output_file = value
                     case "PERFECT":
-                        print(value)
                         if value == "True":
                             self.perfect = True
                         elif value == "False":
@@ -84,7 +90,7 @@ class Config:
                             )
                     case _:
                         print(
-                            f"WARN: Config field {key} is not supported.",
+                            f"WARN: Config field '{key}' is not supported.",
                             file=sys.stderr,
                         )
 
@@ -109,7 +115,7 @@ class Config:
         if self.width < 2:
             raise ValueError("WIDTH needs to be at least two.")
         if self.heigth < 2:
-            raise ValueError("HEIGHT needs to be at least two.")
+            raise ValueError("HEIGTH needs to be at least two.")
         if len(self.entry) != 2:
             raise ValueError(
                 "ENTRY needs to have exactly two coordinates (x, y)"
@@ -118,11 +124,11 @@ class Config:
             raise ValueError(
                 "EXIT needs to have exactly two coordinates (x, y)"
             )
-        if self.goal[0] > self.width:
+        if self.goal[0] >= self.width or self.goal[0] < 0:
             raise ValueError("EXIT cannot be outside the maze (width).")
-        if self.goal[1] > self.heigth:
+        if self.goal[1] >= self.heigth or self.goal[1] < 0:
             raise ValueError("EXIT cannot be outside the maze (heigth).")
-        if self.entry[0] > self.width:
+        if self.entry[0] >= self.width or self.entry[0] < 0:
             raise ValueError("ENTRY cannot be outside the maze (width).")
-        if self.entry[1] > self.heigth:
+        if self.entry[1] >= self.heigth or self.entry[1] < 0:
             raise ValueError("ENTRY cannot be outside the maze (heigth).")
