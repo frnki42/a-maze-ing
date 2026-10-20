@@ -2,7 +2,18 @@ import sys
 
 
 class Config:
-    """Config handles the configuration for the maze-generation."""
+    """Handles the configuration for maze generation.
+
+    Attributes:
+        width: The width of the maze.
+        heigth: The heigth of the maze.
+        entry: The (x, y) coordinates for the maze entry point.
+        goal: The (x, y) coordinates for the maze exit point.
+        output_file: The file path where the generated maze will be saved.
+        perfect: Whether the generated maze should be a perfect maze.
+        all_paths: Whether all possible paths from entry to goal should
+                be generated.
+    """
 
     width: int
     heigth: int
@@ -12,21 +23,31 @@ class Config:
     perfect: bool
 
     def __init__(self, file_name: str):
-        """
-        Instantiates the config class with the data in the
-        config file provided.
+        """Initializes the Config instance with data from the provided file.
 
-        Throws:
-            - ValueError
-            - TypeError
-            - OSError
-            - AttributeError
+        Args:
+            file_name: The path to the configuration file.
+
+        Raises:
+            ValueError: If any configuration value is invalid or out of bounds.
+            TypeError: If a configuration value is of an incompatible type.
+            OSError: If the configuration file cannot be opened or read.
+            AttributeError: If required configuration attributes are missing.
         """
         self._load_config(file_name)
         self._validate_config()
 
     def _load_config(self, file_name: str) -> None:
-        """Protected method for loading a file into self."""
+        """Loads configuration key-value pairs from a file into the instance.
+
+        Args:
+            file_name: The path to the configuration file to read.
+
+        Raises:
+            OSError: If the file cannot be opened or read.
+            ValueError: If a line cannot be unpacked, an integer conversion
+                fails, or the PERFECT field is neither 'True' nor 'False'.
+        """
         with open(file_name, "r") as config_file:
             while True:
                 line = config_file.readline()
@@ -68,7 +89,15 @@ class Config:
                         )
 
     def _validate_config(self) -> None:
-        """Protected method for validating field values."""
+        """Validates that all required configuration fields exist and are
+               valid.
+
+        Raises:
+            AttributeError: If any required configuration attribute is missing.
+            ValueError: If width or heigth is less than 2, if entry or goal
+                does not contain two coordinates, or if entry or goal
+                coordinates fall outside the maze dimensions.
+        """
         if not all(
             hasattr(self, attribute) for attribute in self.__annotations__
         ):
