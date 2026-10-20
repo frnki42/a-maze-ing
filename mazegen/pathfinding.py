@@ -66,17 +66,18 @@ def _trace_path(
         A list of Direction enums representing the forward path from start to
         goal.
     """
-    path = []
+    path: list[Direction] = []
     current = goal
     while True:
-        parent = cell_details[current[0]][current[1]].parent
+        cell = cell_details[current[0]][current[1]]
+        if cell is None or cell.parent is None:
+            return path[::-1]
+        parent = cell.parent
         delta = (current[0] - parent[0], current[1] - parent[1])
         for direction in DIRECTIONS:
             if direction.delta == delta:
                 path.append(direction)
         current = parent
-        if not cell_details[current[0]][current[1]].parent:
-            return path[::-1]
 
 
 def _astar(
@@ -100,7 +101,7 @@ def _astar(
     closedlist = [
         [False for _ in range(grid.height)] for _ in range(grid.width)
     ]
-    cell_details = [
+    cell_details: list[list[_Cell | None]] = [
         [None for _ in range(grid.height)] for _ in range(grid.width)
     ]
     cell_details[entry[0]][entry[1]] = _Cell(0, 0)
@@ -111,6 +112,10 @@ def _astar(
         if closedlist[x][y]:
             continue
         closedlist[x][y] = True
+        current_cell = cell_details[x][y]
+        if current_cell is None:
+            continue
+
         possible_moves = grid.open_directions(x, y)
         for move in possible_moves:
             delta_x, delta_y = move.delta
@@ -120,14 +125,15 @@ def _astar(
                     cell_details[new_x][new_y] = _Cell(0, 0, (x, y))
                     return _trace_path(cell_details, goal)
                 else:
-                    cost = cell_details[x][y].cost + 1
+                    cost = current_cell.cost + 1
                     estimated_cost = abs(new_x - goal[0]) + abs(
                         new_y - goal[1]
                     )
+                    target_cell = cell_details[new_x][new_y]
 
                     if (
-                        not cell_details[new_x][new_y]
-                        or cell_details[new_x][new_y].total_estimated_cost()
+                        target_cell is None
+                        or target_cell.total_estimated_cost()
                         > cost + estimated_cost
                     ):
                         heappush(
@@ -151,7 +157,7 @@ def _dfs(
     path: list[Direction],
     all_paths: list[list[Direction]],
     visited: set[tuple[int, int]],
-):
+) -> None:
     """Finds all simple paths from entry to goal using DFS backtracking.
 
     Args:
@@ -167,6 +173,7 @@ def _dfs(
         all_paths.append(path.copy())
         return
     else:
+        visited.add(entry)
         x, y = entry
         possible_moves = grid.open_directions(x, y)
         for move in possible_moves:
@@ -174,10 +181,10 @@ def _dfs(
             new_x, new_y = x + delta_x, y + delta_y
             if (new_x, new_y) not in visited:
                 path.append(move)
-                _dfs((new_x, new_y), goal, grid, path, all_paths)
+                _dfs((new_x, new_y), goal, grid, path, all_paths, visited)
                 path.pop()
 
-    visited.remove(entry)
+        visited.remove(entry)
 
 
 @overload
@@ -212,8 +219,8 @@ def find_path(
         if config.perfect:
             return [_astar(grid, config.entry, config.goal)]
         else:
-            all_paths: list[list[Direction]] = []
-            _dfs(config.entry, config.goal, grid, [], all_paths)
-            return all_paths
+            paths: list[list[Direction]] = []
+            _dfs(config.entry, config.goal, grid, [], paths, set())
+            return paths
     else:
         return _astar(grid, config.entry, config.goal)
