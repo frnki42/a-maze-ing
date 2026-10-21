@@ -315,3 +315,9 @@ running it, linting it and comparing it with the code.
   and edited by us.
 
 TODO: complete at the end of the project.
+
+## License
+
+Released under the MIT License, see [LICENSE.md](LICENSE.md). This also
+covers the `mazegen` package, so it may be reused and redistributed by
+later projects.
