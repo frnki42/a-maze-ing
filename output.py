@@ -17,11 +17,14 @@ def write_maze(
 
     Args:
         grid (Grid): The grid object representing the maze layout and walls.
-        entry (tuple[int, int]): The (x, y) coordinates for the starting point of the maze.
-        goal (tuple[int, int]): The (x, y) coordinates for the end/target point of the maze.
-        path (list[Direction]): A sequence of Direction enums representing the solved path
-            from the entry to the goal.
-        file_name (str): The name or path of the file where the maze data will be saved.
+            entry (tuple[int, int]): The (x, y) coordinates for the starting point
+            of the maze.
+        goal (tuple[int, int]): The (x, y) coordinates for the end/target point
+            of the maze.
+        path (list[Direction]): A sequence of Direction enums representing
+            the solved path from the entry to the goal.
+        file_name (str): The name or path of the file where the maze data
+            will be saved.
     """
     grid_str_parts: list[str] = []
 
