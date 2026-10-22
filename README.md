@@ -314,8 +314,6 @@ running it, linting it and comparing it with the code.
   README, checked against the code (every documented behaviour was tested)
   and edited by us.
 
-TODO: complete at the end of the project.
-
 ## License
 
 Released under the MIT License, see [LICENSE.md](LICENSE.md). This also
