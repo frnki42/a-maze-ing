@@ -1,8 +1,6 @@
 from heapq import heappop, heappush
 from itertools import count
-from typing import Literal, overload
 
-from .config import Config
 from .grid import DIRECTIONS, Direction, Grid
 
 
@@ -187,40 +185,18 @@ def _dfs(
         visited.remove(entry)
 
 
-@overload
-def find_path(
-    grid: Grid, config: Config, all_paths: Literal[True]
-) -> list[list[Direction]]: ...
-
-
-@overload
-def find_path(
-    grid: Grid, config: Config, all_paths: Literal[False] = False
-) -> list[Direction]: ...
-
-
-def find_path(
-    grid: Grid, config: Config, all_paths: bool = False
-) -> list[Direction] | list[list[Direction]]:
-    """Finds path(s) through a grid between configured entry and goal points.
+def find_shortest_path(
+    grid: Grid, entry: tuple[int, int], goal: tuple[int, int]
+) -> list[Direction]:
+    """Finds the shortest path through a grid between entry and goal points.
 
     Args:
         grid: The Grid environment to navigate.
-        config: Configuration containing entry/goal coordinates and maze
-            properties (e.g., whether the maze is `perfect`).
-        all_paths: If True, returns a list containing all viable paths. If
-            False, returns a single path. Defaults to False.
+        entry: The (x, y) coordinates of the starting cell.
+        goal: The (x, y) coordinates of the target cell.
 
     Returns:
-        A list of Direction steps if `all_paths` is False, or a list of such
-        paths if `all_paths` is True.
+        A list of Direction steps representing the shortest path from entry to
+        goal, or an empty list if no path exists.
     """
-    if all_paths:
-        if config.perfect:
-            return [_astar(grid, config.entry, config.goal)]
-        else:
-            paths: list[list[Direction]] = []
-            _dfs(config.entry, config.goal, grid, [], paths, set())
-            return paths
-    else:
-        return _astar(grid, config.entry, config.goal)
+    return _astar(grid, entry, goal)
