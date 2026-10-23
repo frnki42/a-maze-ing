@@ -2,11 +2,11 @@ import sys
 
 
 _REQUIRED_KEYS: dict[str, str] = {
-        "width": "WIDTH",
-        "height": "HEIGHT",
-        "entry": "ENTRY",
-        "goal": "EXIT",
-        "output_file": "OUTPUT_FILE"
+    "width": "WIDTH",
+    "height": "HEIGHT",
+    "entry": "ENTRY",
+    "goal": "EXIT",
+    "output_file": "OUTPUT_FILE"
 }
 
 
