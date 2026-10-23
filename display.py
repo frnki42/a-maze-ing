@@ -6,6 +6,10 @@ canvas position, and the positions between cells are the walls. Colours
 are only chosen when the canvas is rendered, from a palette that maps each
 ``Kind`` to a 256-colour ANSI code, so switching palettes never needs a
 rebuild of the canvas.
+
+``run()`` is the entry point: it builds every maze from the config with
+``_make_maze()`` (generate, solve, write the output file) and redraws the
+screen after each menu choice.
 """
 
 from enum import Enum, IntEnum
@@ -276,6 +280,20 @@ def _make_maze(
     config: Config,
     seed: int | None,
 ) -> tuple[MazeGenerator, list[Direction]]:
+    """Generate a maze, find its shortest path and write the output file.
+
+    Args:
+        config: The parsed configuration file.
+        seed: Seed for the maze; None picks a random one.
+
+    Returns:
+        The generator, after ``generate()``, and the shortest path from
+        the entry to the exit, one ``Direction`` per step.
+
+    Raises:
+        ValueError: If ``MazeGenerator`` rejects the configuration.
+        OSError: If the output file cannot be written.
+    """
     gen = MazeGenerator(
         config.width,
         config.height,
