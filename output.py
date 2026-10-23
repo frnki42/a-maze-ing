@@ -37,4 +37,4 @@ def write_maze(
     grid_str_parts.append(str(goal)[1:-1])
     grid_str_parts.append("".join(direction.name for direction in path))
     with open(file_name, "w") as fd:
-        fd.write("\n".join(grid_str_parts)) + "\n"
+        fd.write("\n".join(grid_str_parts) + "\n")
