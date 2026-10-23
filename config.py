@@ -6,7 +6,7 @@ _REQUIRED_KEYS: dict[str, str] = {
     "height": "HEIGHT",
     "entry": "ENTRY",
     "goal": "EXIT",
-    "output_file": "OUTPUT_FILE"
+    "output_file": "OUTPUT_FILE",
 }
 
 
