@@ -93,7 +93,7 @@ class Config:
                         )
 
     def _validate_config(self) -> None:
-        """Validates that all required configuration fields exist and are valid.
+        """Validates that all required fields exist and are valid.
 
         Raises:
             AttributeError: If any required configuration attribute is missing.
