@@ -36,10 +36,10 @@ def write_maze(
     grid_str_parts: list[str] = []
 
     for y in range(grid.height):
-        row = "".join(
-            str(hex(grid.walls(x, y)))[-1] for x in range(grid.width)
-        )
-        grid_str_parts.append(row)
+        digits: list[str] = []
+        for x in range(grid.width):
+            digits.append(format(grid.walls(x, y), "x"))
+        grid_str_parts.append("".join(digits))
     grid_str_parts.append("")
     grid_str_parts.append(f"{entry[0]},{entry[1]}")
     grid_str_parts.append(f"{goal[0]},{goal[1]}")
