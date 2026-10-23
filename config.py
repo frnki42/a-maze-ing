@@ -10,6 +10,44 @@ _REQUIRED_KEYS: dict[str, str] = {
 }
 
 
+def _parse_int(key: str, value: str) -> int:
+    """Converts a config value to an integer.
+
+    Args:
+        key: The config key, used in the error message.
+        value: The text after the "=" sign.
+
+    Returns:
+        The value as an integer.
+
+    Raises:
+        ValueError: If the value is not an integer.
+    """
+    try:
+        return int(value)
+    except ValueError as e:
+        raise ValueError(f"{key} must be an integer, got '{value}'") from e
+
+
+def _parse_coords(key: str, value: str) -> tuple[int, int]:
+    """Converts a config value like "3,4" to a pair of integers.
+
+    Args:
+        key: The config key, used in the error message.
+        value: The text after the "=" sign.
+
+    Returns:
+        The value as an (x, y) tuple.
+
+    Raises:
+        ValueError: If the value is not exactly two integers.
+    """
+    parts = value.split(",")
+    if len(parts) != 2:
+        raise ValueError(f"{key} must be two integers x,y, got '{value}'")
+    return (_parse_int(key, parts[0]), _parse_int(key, parts[1]))
+
+
 class Config:
     """Handles the configuration for maze generation.
 
@@ -74,15 +112,13 @@ class Config:
                 value = value.strip(" \n\t")
                 match key:
                     case "WIDTH":
-                        self.width = int(value)
+                        self.width = _parse_int(key, value)
                     case "HEIGHT":
-                        self.height = int(value)
+                        self.height = _parse_int(key, value)
                     case "ENTRY":
-                        x, y = value.split(",")
-                        self.entry = (int(x), int(y))
+                        self.entry = _parse_coords(key, value)
                     case "EXIT":
-                        x, y = value.split(",")
-                        self.goal = (int(x), int(y))
+                        self.goal = _parse_coords(key, value)
                     case "OUTPUT_FILE":
                         self.output_file = value
                     case "PERFECT":
