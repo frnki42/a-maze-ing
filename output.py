@@ -8,23 +8,22 @@ def write_maze(
     path: list[Direction],
     file_name: str,
 ) -> None:
-    """Writes the maze configuration and solution path to a file.
+    """Writes the maze and its shortest path to a file.
 
-    This function serializes the maze grid's wall structure into hexadecimal
-    characters, appends the entry and goal coordinates, and adds the string
-    representation of the solution path. The resulting string is then saved
-    to the specified text file.
+    The file has one row of hexadecimal digits per maze row (one digit per
+    cell, a set bit is a closed wall: 1 = N, 2 = E, 4 = S, 8 = W), then an
+    empty line, the entry as "x,y", the exit as "x,y" and the path as
+    N/E/S/W letters. Every line ends with a newline (subject IV.5).
 
     Args:
-        grid (Grid): The grid object representing the maze layout and walls.
-            entry (tuple[int, int]): The (x, y) coordinates for the starting point
-            of the maze.
-        goal (tuple[int, int]): The (x, y) coordinates for the end/target point
-            of the maze.
-        path (list[Direction]): A sequence of Direction enums representing
-            the solved path from the entry to the goal.
-        file_name (str): The name or path of the file where the maze data
-            will be saved.
+        grid: The maze to write.
+        entry: The entry cell as (x,y).
+        goal: The exit cell as (x,y).
+        path: The steps from entry to goal, one Direction per step.
+        file_name: The path of the file to create or overwrite.
+
+    Raises:
+        OSError: If the file cannot be written.
     """
     grid_str_parts: list[str] = []
 
