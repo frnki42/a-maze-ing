@@ -59,6 +59,8 @@ class Config:
         output_file: The file path where the generated maze will be saved.
         perfect: Whether the generated maze should be a perfect maze.
             Optional in the config file; defaults to False.
+        seed: The seed for the first maze, or None for a random one.
+            Optional in the config file (key SEED); defaults to None.
     """
 
     width: int
@@ -67,6 +69,7 @@ class Config:
     goal: tuple[int, int]
     output_file: str
     perfect: bool = False
+    seed: int | None = None
 
     def __init__(self, file_name: str):
         """Initializes the Config instance with data from the provided file.
@@ -131,6 +134,8 @@ class Config:
                             raise ValueError(
                                 "PERFECT needs to be either True or False."
                             )
+                    case "SEED":
+                        self.seed = _parse_int(key, value)
                     case _:
                         print(
                             f"WARN: Config field '{key}' is not supported.",

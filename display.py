@@ -6,16 +6,24 @@ canvas position, and the positions between cells are the walls. Colours
 are only chosen when the canvas is rendered, from a palette that maps each
 ``Kind`` to a 256-colour ANSI code, so switching palettes never needs a
 rebuild of the canvas.
+
+``run()`` is the entry point: it builds every maze from the config with
+``_make_maze()`` (generate, solve, write the output file) and redraws the
+screen after each menu choice.
 """
 
 from enum import Enum, IntEnum
 
+from config import Config
 from mazegen import MazeGenerator
 from mazegen.grid import Direction, Grid
+from mazegen.pathfinding import find_shortest_path
+from output import write_maze
 
 
 RESET = "\033[0m"
 CLEAR = "\033[H\033[2J"
+NO_PATTERN = 'Error: the maze is too small for the "42" pattern (min 9x7).'
 PROMPT = "Choice? (1-4): "
 MENU = (
     "=== A-Maze-ing ===\n"
@@ -251,58 +259,91 @@ def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
     return "".join(parts)
 
 
-def draw(canvas: list[list[Kind]], palette: dict[Kind, int]) -> None:
-    """Clear the terminal and print the maze followed by the menu.
+def draw(
+    canvas: list[list[Kind]],
+    palette: dict[Kind, int],
+    status: str,
+) -> None:
+    """Clear the terminal and print the maze, a status text and the menu.
 
     Args:
         canvas: The canvas to show.
         palette: The colour code to use for each kind.
+        status: Text printed between the maze and the menu.
     """
     print(CLEAR + render(canvas, palette), end="")
+    print(status)
     print(MENU, end="")
 
 
-def run(
-    width: int,
-    height: int,
-    entry: tuple[int, int],
-    exit_cell: tuple[int, int],
-    perfect: bool,
-    seed: int | None = None,
-) -> None:
-    """Generate a maze and show it until the user quits.
-
-    Each loop draws the maze and the menu, reads one choice and applies
-    it. Invalid input simply redraws the screen.
+def _make_maze(
+    config: Config,
+    seed: int | None,
+) -> tuple[MazeGenerator, list[Direction]]:
+    """Generate a maze, find its shortest path and write the output file.
 
     Args:
-        width: Number of columns.
-        height: Number of rows.
-        entry: Entry cell as ``(x, y)``.
-        exit_cell: Exit cell as ``(x, y)``.
-        perfect: Whether to generate a perfect maze.
-        seed: Seed for the first maze; None picks a random one. Mazes made
-            with "Re-generate" always get a new random seed.
+        config: The parsed configuration file.
+        seed: Seed for the maze; None picks a random one.
+
+    Returns:
+        The generator, after ``generate()``, and the shortest path from
+        the entry to the exit, one ``Direction`` per step.
 
     Raises:
-        ValueError: If ``MazeGenerator`` rejects the parameters.
+        ValueError: If ``MazeGenerator`` rejects the configuration.
+        OSError: If the output file cannot be written.
     """
-    gen = MazeGenerator(width, height, entry, exit_cell, perfect, seed)
+    gen = MazeGenerator(
+        config.width,
+        config.height,
+        config.entry,
+        config.goal,
+        config.perfect,
+        seed,
+    )
     grid = gen.generate()
-    path: list[Direction] = []
+    path = find_shortest_path(grid, config.entry, config.goal)
+    write_maze(grid, config.entry, config.goal, path, config.output_file)
+    return gen, path
+
+
+def run(config: Config) -> None:
+    """Show mazes made from config until the user quits.
+
+    Each loop draws the maze and the menu, reads one choice and applies
+    it. Invalid input simply redraws the screen. The first maze uses
+    ``config.seed``; "Re-generate" makes a new one with a random seed.
+    Every new maze is also written to ``config.output_file``.
+
+    Args:
+        config: The parsed configuration file.
+
+    Raises:
+        ValueError: If ``MazeGenerator`` rejects the configuration.
+        OSError: If the output file cannot be written.
+    """
+    gen, path = _make_maze(config, config.seed)
     show_path = False
     palette_idx = 0
     while True:
         canvas = _compose(
-            grid, entry, exit_cell, gen.pattern_cells, path, show_path,
+            gen.grid,
+            config.entry,
+            config.goal,
+            gen.pattern_cells,
+            path,
+            show_path,
         )
-        draw(canvas, PALETTES[palette_idx])
+        status = f"Seed: {gen.seed}"
+        if not gen.pattern_cells:
+            status += "\n" + NO_PATTERN
+        draw(canvas, PALETTES[palette_idx], status)
         choice = _read_choice()
         if choice is Choice.QUIT:
             break
         elif choice is Choice.REGENERATE:
-            gen = MazeGenerator(width, height, entry, exit_cell, perfect)
-            grid = gen.generate()
+            gen, path = _make_maze(config, None)
         elif choice is Choice.TOGGLE_PATH:
             show_path = not show_path
         elif choice is Choice.ROTATE_COLORS:
