@@ -10,8 +10,11 @@ rebuild of the canvas.
 
 from enum import Enum, IntEnum
 
+from config import Config
 from mazegen import MazeGenerator
 from mazegen.grid import Direction, Grid
+from mazegen.pathfinding import find_shortest_path
+from output import write_maze
 
 
 RESET = "\033[0m"
@@ -262,47 +265,57 @@ def draw(canvas: list[list[Kind]], palette: dict[Kind, int]) -> None:
     print(MENU, end="")
 
 
-def run(
-    width: int,
-    height: int,
-    entry: tuple[int, int],
-    exit_cell: tuple[int, int],
-    perfect: bool,
-    seed: int | None = None,
-) -> None:
-    """Generate a maze and show it until the user quits.
+def _make_maze(
+    config: Config,
+    seed: int | None,
+) -> tuple[MazeGenerator, list[Direction]]:
+    gen = MazeGenerator(
+        config.width,
+        config.height,
+        config.entry,
+        config.goal,
+        config.perfect,
+        seed,
+    )
+    grid = gen.generate()
+    path = find_shortest_path(grid, config.entry, config.goal)
+    write_maze(grid, config.entry, config.goal, path, config.output_file)
+    return gen, path
+
+
+def run(config: Config) -> None:
+    """Show mazes made from config until the user quits.
 
     Each loop draws the maze and the menu, reads one choice and applies
-    it. Invalid input simply redraws the screen.
+    it. Invalid input simply redraws the screen. The first maze uses
+    ``config.seed``; "Re-generate" makes a new one with a random seed.
+    Every new maze is also written to ``config.output_file``.
 
     Args:
-        width: Number of columns.
-        height: Number of rows.
-        entry: Entry cell as ``(x, y)``.
-        exit_cell: Exit cell as ``(x, y)``.
-        perfect: Whether to generate a perfect maze.
-        seed: Seed for the first maze; None picks a random one. Mazes made
-            with "Re-generate" always get a new random seed.
+        config: The parsed configuration file.
 
     Raises:
-        ValueError: If ``MazeGenerator`` rejects the parameters.
+        ValueError: If ``MazeGenerator`` rejects the configuration.
+        OSError: If the output file cannot be written.
     """
-    gen = MazeGenerator(width, height, entry, exit_cell, perfect, seed)
-    grid = gen.generate()
-    path: list[Direction] = []
+    gen, path = _make_maze(config, config.seed)
     show_path = False
     palette_idx = 0
     while True:
         canvas = _compose(
-            grid, entry, exit_cell, gen.pattern_cells, path, show_path,
+            gen.grid,
+            config.entry,
+            config.goal,
+            gen.pattern_cells,
+            path,
+            show_path,
         )
         draw(canvas, PALETTES[palette_idx])
         choice = _read_choice()
         if choice is Choice.QUIT:
             break
         elif choice is Choice.REGENERATE:
-            gen = MazeGenerator(width, height, entry, exit_cell, perfect)
-            grid = gen.generate()
+            gen, path = _make_maze(config, None)
         elif choice is Choice.TOGGLE_PATH:
             show_path = not show_path
         elif choice is Choice.ROTATE_COLORS:
