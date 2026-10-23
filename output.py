@@ -1,6 +1,14 @@
 from mazegen.grid import Direction, Grid
 
 
+_LETTERS: dict[Direction, str] = {
+    Direction.N: "N",
+    Direction.E: "E",
+    Direction.S: "S",
+    Direction.W: "W",
+}
+
+
 def write_maze(
     grid: Grid,
     entry: tuple[int, int],
@@ -35,6 +43,9 @@ def write_maze(
     grid_str_parts.append("")
     grid_str_parts.append(f"{entry[0]},{entry[1]}")
     grid_str_parts.append(f"{goal[0]},{goal[1]}")
-    grid_str_parts.append("".join(direction.name for direction in path))
+    letters: list[str] = []
+    for direction in path:
+        letters.append(_LETTERS[direction])
+    grid_str_parts.append("".join(letters))
     with open(file_name, "w") as fd:
         fd.write("\n".join(grid_str_parts) + "\n")
