@@ -7,6 +7,7 @@ from display import run
 USAGE = "usage: python3 a_maze_ing.py <config_file>"
 EXIT_ERROR = 1
 EXIT_USAGE = 2
+EXIT_INTERRUPTED = 130
 
 
 def main() -> int:
@@ -33,4 +34,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\nInterrupted.", file=sys.stderr)
+        sys.exit(EXIT_INTERRUPTED)
