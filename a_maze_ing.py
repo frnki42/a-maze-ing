@@ -1,5 +1,5 @@
 import sys
-from mazegen.config import Config
+from config import Config
 
 
 USAGE = "usage: python3 a_maze_ing.py <config_file>"
