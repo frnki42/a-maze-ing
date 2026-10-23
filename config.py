@@ -1,6 +1,15 @@
 import sys
 
 
+_REQUIRED_KEYS: dict[str, str] = {
+        "width": "WIDTH",
+        "height": "HEIGHT",
+        "entry": "ENTRY",
+        "goal": "EXIT",
+        "output_file": "OUTPUT_FILE"
+}
+
+
 class Config:
     """Handles the configuration for maze generation.
 
@@ -101,14 +110,12 @@ class Config:
                 does not contain two coordinates, or if entry or goal
                 coordinates fall outside the maze dimensions.
         """
-        if not all(
-            hasattr(self, attribute) for attribute in self.__annotations__
-        ):
-            raise AttributeError(
-                "Missing values in the configuration file.",
-                "Attributes required: ",
-                [attr.upper() for attr in self.__annotations__.keys()],
-            )
+        missing: list[str] = []
+        for attribute, key in _REQUIRED_KEYS.items():
+            if not hasattr(self, attribute):
+                missing.append(key)
+        if missing:
+            raise ValueError("missing keys: " + ", ".join(missing))
         if self.width < 2:
             raise ValueError("WIDTH needs to be at least two.")
         if self.height < 2:
