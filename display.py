@@ -19,6 +19,7 @@ from output import write_maze
 
 RESET = "\033[0m"
 CLEAR = "\033[H\033[2J"
+NO_PATTERN = 'Error: the maze is too small for the "42" pattern (min 9x7).'
 PROMPT = "Choice? (1-4): "
 MENU = (
     "=== A-Maze-ing ===\n"
@@ -254,14 +255,20 @@ def render(canvas: list[list[Kind]], palette: dict[Kind, int]) -> str:
     return "".join(parts)
 
 
-def draw(canvas: list[list[Kind]], palette: dict[Kind, int]) -> None:
-    """Clear the terminal and print the maze followed by the menu.
+def draw(
+    canvas: list[list[Kind]],
+    palette: dict[Kind, int],
+    status: str,
+) -> None:
+    """Clear the terminal and print the maze, a status text and the menu.
 
     Args:
         canvas: The canvas to show.
         palette: The colour code to use for each kind.
+        status: Text printed between the maze and the menu.
     """
     print(CLEAR + render(canvas, palette), end="")
+    print(status)
     print(MENU, end="")
 
 
@@ -310,7 +317,10 @@ def run(config: Config) -> None:
             path,
             show_path,
         )
-        draw(canvas, PALETTES[palette_idx])
+        status = f"Seed: {gen.seed}"
+        if not gen.pattern_cells:
+            status += "\n" + NO_PATTERN
+        draw(canvas, PALETTES[palette_idx], status)
         choice = _read_choice()
         if choice is Choice.QUIT:
             break
