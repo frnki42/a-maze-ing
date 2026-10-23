@@ -20,6 +20,7 @@ class Config:
         goal: The (x, y) coordinates for the maze exit point.
         output_file: The file path where the generated maze will be saved.
         perfect: Whether the generated maze should be a perfect maze.
+            Optional in the config file; defaults to False.
     """
 
     width: int
@@ -36,10 +37,8 @@ class Config:
             file_name: The path to the configuration file.
 
         Raises:
-            ValueError: If any configuration value is invalid or out of bounds.
-            TypeError: If a configuration value is of an incompatible type.
+            ValueError: If a key is missing or a value is invalid.
             OSError: If the configuration file cannot be opened or read.
-            AttributeError: If required configuration attributes are missing.
         """
         self._load_config(file_name)
         self._validate_config()
@@ -105,10 +104,9 @@ class Config:
         """Validates that all required fields exist and are valid.
 
         Raises:
-            AttributeError: If any required configuration attribute is missing.
-            ValueError: If width or height is less than 2, if entry or goal
-                does not contain two coordinates, or if entry or goal
-                coordinates fall outside the maze dimensions.
+            ValueError: If a required key is missing, if width or height is
+                less than 2, if entry or goal does not contain two
+                coordinates, or if entry or goal lies outside the maze.
         """
         missing: list[str] = []
         for attribute, key in _REQUIRED_KEYS.items():
