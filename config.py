@@ -89,25 +89,26 @@ class Config:
 
         Raises:
             OSError: If the file cannot be opened or read.
-            ValueError: If a line cannot be unpacked, an integer conversion
-                fails, or the PERFECT field is neither 'True' nor 'False'.
+            ValueError: If a line is not KEY=VALUE, a number or coordinate
+                is invalid, or PERFECT is neither 'True' nor 'False'.
         """
         with open(file_name, "r") as config_file:
+            line_no = 0
             while True:
                 line = config_file.readline()
                 if not line:
                     break
-                if line.startswith("#") or line == "\n":
+                line_no += 1
+                stripped = line.strip()
+                if stripped == "" or stripped.startswith("#"):
                     continue
                 try:
                     key, value = line.split(sep="=")
-                except ValueError:
+                except ValueError as e:
                     raise ValueError(
-                       "Invalid line in config.txt."
-                       "For configuration use the <FIELD>=<VALUE> notation."
-                       "Line-comments must start with #"
-                       "Empty lines cannot contain any whitespace."
-                    )
+                        f"{file_name}, line {line_no}: expected KEY=VALUE, "
+                        f"got '{stripped}'"
+                    ) from e
                 key = key.strip(" \n\t")
                 value = value.strip(" \n\t")
                 match key:
