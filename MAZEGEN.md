@@ -46,7 +46,7 @@ row (`0` to `height - 1`), and `(0, 0)` is the top-left cell.
 | `height`    | `int`             | required | number of rows                                       |
 | `entry`     | `tuple[int, int]` | required | entry cell `(x, y)`                                  |
 | `exit_cell` | `tuple[int, int]` | required | exit cell `(x, y)`                                   |
-| `perfect`   | `bool`            | `False`  | `True`: exactly one path between any two cells (no loops). `False`: a board with loops and few dead-ends |
+| `perfect`   | `bool`            | `False`  | `True`: exactly one path between any two cells (no loops). `False`: a board with loops; dead ends are removed wherever the "42" and the border allow it |
 | `seed`      | `int` or `None`   | `None`   | same seed and parameters give the same maze; `None` picks a random seed once |
 
 The same seed always gives the same maze, so a maze can be shared by its seed:
@@ -96,4 +96,33 @@ for d in grid.open_directions(0, 0):
 
 ## Shortest path
 
-TODO: document once shortest_path() is on main.
+`find_shortest_path` (in `mazegen.pathfinding`) returns a shortest route
+between two cells as a list of `Direction` steps. It uses A* with the
+Manhattan distance as heuristic, so the result is a shortest path in both
+modes, also when the maze has loops.
+
+```python
+from mazegen import MazeGenerator
+from mazegen.pathfinding import find_shortest_path
+
+gen = MazeGenerator(20, 15, entry=(0, 0), exit_cell=(19, 14), seed=42)
+grid = gen.generate()
+path = find_shortest_path(grid, (0, 0), (19, 14))
+
+letters = ""
+for step in path:
+    letters += step.name
+
+print(len(path))  # 39
+print(letters)    # SSSSSESWSSSSSSSESEEEEEEEEEEEENNESSEEEEE
+```
+
+| Parameter | Type              | Meaning                    |
+|-----------|-------------------|----------------------------|
+| `grid`    | `Grid`            | the maze from `generate()` |
+| `entry`   | `tuple[int, int]` | start cell `(x, y)`        |
+| `goal`    | `tuple[int, int]` | target cell `(x, y)`       |
+
+It returns an empty list if `entry` and `goal` are the same cell or if
+`goal` cannot be reached (for example a cell of the "42"). Following the
+steps from `entry` with each `Direction.delta` leads to `goal`.
