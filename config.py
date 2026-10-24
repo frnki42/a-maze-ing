@@ -145,8 +145,8 @@ class Config:
         Raises:
             ValueError: If a required key is missing, if width or height is
                 less than 2 or more than _MAX_SIZE, if entry or goal does
-                not contain two coordinates, or if entry or goal lies
-                outside the maze.
+                not contain two coordinates, if entry or goal lies outside
+                the maze, or if output_file is empty.
         """
         missing: list[str] = []
         for attribute, key in _REQUIRED_KEYS.items():
@@ -178,3 +178,5 @@ class Config:
             raise ValueError("ENTRY cannot be outside the maze (width).")
         if self.entry[1] >= self.height or self.entry[1] < 0:
             raise ValueError("ENTRY cannot be outside the maze (height).")
+        if self.output_file == "":
+            raise ValueError("OUTPUT_FILE cannot be empty.")
