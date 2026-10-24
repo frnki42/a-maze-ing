@@ -1,6 +1,8 @@
 import sys
 
 
+_MAX_SIZE = 100
+
 _REQUIRED_KEYS: dict[str, str] = {
     "width": "WIDTH",
     "height": "HEIGHT",
@@ -142,8 +144,9 @@ class Config:
 
         Raises:
             ValueError: If a required key is missing, if width or height is
-                less than 2, if entry or goal does not contain two
-                coordinates, or if entry or goal lies outside the maze.
+                less than 2 or more than _MAX_SIZE, if entry or goal does
+                not contain two coordinates, or if entry or goal lies
+                outside the maze.
         """
         missing: list[str] = []
         for attribute, key in _REQUIRED_KEYS.items():
@@ -155,6 +158,10 @@ class Config:
             raise ValueError("WIDTH needs to be at least two.")
         if self.height < 2:
             raise ValueError("HEIGHT needs to be at least two.")
+        if self.width > _MAX_SIZE:
+            raise ValueError(f"WIDTH cannot be more than {_MAX_SIZE}.")
+        if self.height > _MAX_SIZE:
+            raise ValueError(f"HEIGHT cannot be more than {_MAX_SIZE}.")
         if len(self.entry) != 2:
             raise ValueError(
                 "ENTRY needs to have exactly two coordinates (x, y)"
