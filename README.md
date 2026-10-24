@@ -314,10 +314,11 @@ The full package documentation is in [MAZEGEN.md](MAZEGEN.md).
 
 | Member   | Responsibilities                                                                 |
 |----------|----------------------------------------------------------------------------------|
-| elfemboc | repository setup, grid model, maze generator, terminal display, main program and error handling, packaging, Makefile, documentation |
-| dpetutsc | configuration parsing, pathfinding (A* shortest path), output file               |
+| elfemboc | repository setup, grid model, maze generator, terminal display, wiring of the main program, packaging, Makefile |
+| dpetutsc | configuration parser and validation, A* pathfinding for the shortest path, output file writer, default config file, the playable-board default (`PERFECT` optional, default `False`) |
 
-Both members reviewed each other's pull requests.
+The shared `Grid` interface and the main design decisions were agreed on
+together, and both members reviewed each other's pull requests.
 
 ### Planning and how it evolved
 
@@ -335,9 +336,6 @@ Both members reviewed each other's pull requests.
   - Testing with `maze_analyzer.py` and extreme configs led to late
     additions: the size limit of 100 and a check for an empty
     `OUTPUT_FILE`.
-  - To keep momentum near the end, we agreed that the reviewer could push
-    fixes directly to the author's pull request branch instead of only
-    leaving comments.
 
 ### What worked well and what could be improved
 
@@ -347,8 +345,8 @@ Both members reviewed each other's pull requests.
 - **Could be improved:**
   - Write automated tests early and keep them on `main`: our first unit
     tests stayed on an old branch and went stale when the parser moved.
-  - Agree on a review turnaround at the start (for example within one
-    day). Without one, finished work sometimes waited for review.
+  - Merge `main` into long-lived branches regularly: our documentation
+    branches fell 35 commits behind and had to catch up at the end.
   - Read the whole subject together at the start and write down
     contradictions right away (the `PERFECT` default).
   - Build the wheel only from a fresh clone: an early wheel accidentally
