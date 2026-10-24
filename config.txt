@@ -12,5 +12,6 @@ ENTRY=0,0
 EXIT=19,14
 # Output filename
 OUTPUT_FILE=maze.txt
-# Is the maze perfect? (Only one path)
-PERFECT=True
+# Is the maze perfect? True = exactly one path, no loops.
+# False (default) = Pac-Man board with loops, no real dead ends.
+PERFECT=False
