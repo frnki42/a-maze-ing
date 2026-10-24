@@ -15,8 +15,9 @@ available:
 - **Perfect** (`PERFECT=True`): exactly one path between any two cells, no
   loops.
 - **Playable board** (`PERFECT=False`, the default): a Pac-Man-style board
-  with loops, so a chased player always has an alternative route, and
-  almost no dead ends.
+  with loops, so a chased player always has an alternative route, and no
+  real dead ends (the "no dead-end" bonus, see
+  [Checking the output](#checking-the-output)).
 
 The generation logic is a standalone, pip-installable package, `mazegen`,
 so it can be reused in later projects (see [Reusable code](#reusable-code-mazegen)).
@@ -79,38 +80,72 @@ While the maze is displayed, choose an action from the menu:
 
 ## Configuration file
 
-One `KEY=VALUE` pair per line. Lines starting with `#` are comments and are
-ignored, as are empty lines.
+One `KEY=VALUE` pair per line. Empty lines and lines starting with `#`
+(also indented ones) are ignored. Spaces around the key and the value are
+allowed. Comments at the end of a line are not supported.
 
-| Key           | Meaning                                   | Example               |
-|---------------|-------------------------------------------|-----------------------|
-| `WIDTH`       | maze width in cells                       | `WIDTH=20`            |
-| `HEIGHT`      | maze height in cells                      | `HEIGHT=15`           |
-| `ENTRY`       | entry cell as `x,y`                       | `ENTRY=0,0`           |
-| `EXIT`        | exit cell as `x,y`                        | `EXIT=19,14`          |
-| `OUTPUT_FILE` | file the maze is written to               | `OUTPUT_FILE=maze.txt`|
-| `PERFECT`     | `True` for a perfect maze, else `False`   | `PERFECT=True`        |
+| Key           | Required | Meaning                                         | Example                |
+|---------------|----------|-------------------------------------------------|------------------------|
+| `WIDTH`       | yes      | maze width in cells, 2 to 100                   | `WIDTH=20`             |
+| `HEIGHT`      | yes      | maze height in cells, 2 to 100                  | `HEIGHT=15`            |
+| `ENTRY`       | yes      | entry cell as `x,y`                             | `ENTRY=0,0`            |
+| `EXIT`        | yes      | exit cell as `x,y`                              | `EXIT=19,14`           |
+| `OUTPUT_FILE` | yes      | file the maze is written to (not empty)         | `OUTPUT_FILE=maze.txt` |
+| `PERFECT`     | no       | `True` or `False` (exactly), default `False`    | `PERFECT=False`        |
+| `SEED`        | no       | integer seed of the first maze, default random  | `SEED=42`              |
 
-All six keys are mandatory. Coordinates are `(x, y)` with `(0, 0)` in the
-top-left corner, so `x` must be below `WIDTH` and `y` below `HEIGHT`. Entry
-and exit must be different cells. Invalid files (missing or duplicate keys,
-bad values, coordinates outside the maze) are rejected with a clear error
-message instead of a crash.
+Coordinates are `(x, y)` with `(0, 0)` in the top-left corner, so `x` must
+be below `WIDTH` and `y` below `HEIGHT`. Entry and exit must be different
+cells and must not lie inside the "42". If a key appears twice, the last
+value wins. Unknown keys are ignored with a warning on stderr.
 
-Example:
+The seed of the current maze is shown under the maze (`Seed: 42`). Putting
+it into `SEED` reproduces that maze; "Re-generate" in the menu always
+picks a new random seed.
+
+**Why the limit of 100:** each cell takes 4 terminal columns, so wider
+mazes wrap and become unreadable, and generation slows down quickly
+(about 0.2 s at 100x100, about 24 s at 1000x1000). The limit is part of the
+program's config check, not of the `mazegen` package. To allow bigger
+mazes, change `_MAX_SIZE` in `config.py`.
+
+**Why `PERFECT` is optional:** the subject contradicts itself. Its table
+of keys (IV.3) lists `PERFECT` as mandatory, but IV.4, the figure caption,
+the description of `maze_analyzer.py` and the bonus chapter all call
+`PERFECT=False` the default. We follow the majority: the key is optional
+and defaults to `False`. The default `config.txt` still contains it, so
+the file also matches the IV.3 table.
+
+Default `config.txt` (comments shortened):
 
 ```
-# A-Maze-ing configuration file
+# A-Maze-Ing configuration file
 WIDTH=20
 HEIGHT=15
 ENTRY=0,0
 EXIT=19,14
 OUTPUT_FILE=maze.txt
-PERFECT=True
+# True = exactly one path, no loops.
+# False (default) = Pac-Man board with loops, no real dead ends.
+PERFECT=False
 ```
 
-TODO: check this section against the final config parser (accepted
-whitespace, extra keys such as a seed, exact error messages).
+### Errors and exit codes
+
+Invalid input never ends in a traceback. The program prints one line to
+stderr and exits with a non-zero code:
+
+| Situation                                   | Example message                                                     | Exit |
+|---------------------------------------------|---------------------------------------------------------------------|------|
+| wrong number of arguments                   | `usage: python3 a_maze_ing.py <config_file>`                        | 2    |
+| config file missing or unreadable           | `Error: cannot read config: [Errno 2] No such file or directory: ...` | 1    |
+| bad line, missing key or bad value          | `Error: invalid config: WIDTH must be an integer, got 'abc'`        | 1    |
+| impossible maze (entry = exit, entry in 42) | `Error: invalid maze parameters: entry and exit must be different`  | 1    |
+| output file cannot be written               | `Error: cannot write the output file: [Errno 2] ...`                | 1    |
+| `Ctrl+C` while a maze is being generated    | `Interrupted.`                                                      | 130  |
+
+Quitting from the menu (`4`, `Ctrl+D` or `Ctrl+C` at the prompt) exits
+with 0.
 
 ## Output file
 
@@ -119,9 +154,33 @@ one row per line. Each digit encodes the closed walls of its cell: bit 0 =
 North, bit 1 = East, bit 2 = South, bit 3 = West (a set bit means the wall
 is closed). After an empty line follow the entry coordinates, the exit
 coordinates and the shortest path from entry to exit as a string of `N`,
-`E`, `S`, `W`.
+`E`, `S`, `W`. The digits are lowercase (`0`-`9`, `a`-`f`), coordinates
+are written as `x,y`, and every line ends with a newline. The file is
+written again for every new maze.
 
-TODO: confirm against the final output writer.
+Start of the file for the default `config.txt` with `SEED=42`:
+
+```
+95395539555539513913
+...
+0,0
+19,14
+SSSSSESWSSSSSSSESEEEEEEEEEEEENNESSEEEEE
+```
+
+### Checking the output
+
+`maze_analyzer.py` (provided with the subject, not part of this
+repository) confirms both modes, for example with `SEED=42`:
+
+| Config          | Verdict of `maze_analyzer.py`                                                         |
+|-----------------|---------------------------------------------------------------------------------------|
+| `PERFECT=True`  | PERFECT maze: a single path, no loop                                                  |
+| `PERFECT=False` | Pac-Man-USABLE: ... 35 independent routes; no real dead-end -> bonus-grade (perfectly braided) |
+
+The playable board also passes `--max-dead-ends 0`, the check for the
+"no dead-end" bonus. The two cells in the notches of the "2" are counted
+as dead ends enclosed by the "42", which the analyzer tolerates.
 
 ## Maze generation algorithm
 
@@ -204,7 +263,7 @@ print(gen.seed)                 # 42
 | `height`    | `int`             | required | number of rows                                       |
 | `entry`     | `tuple[int, int]` | required | entry cell `(x, y)`                                  |
 | `exit_cell` | `tuple[int, int]` | required | exit cell `(x, y)`                                   |
-| `perfect`   | `bool`            | `False`  | `True`: exactly one path between any two cells (no loops). `False`: a board with loops and few dead-ends |
+| `perfect`   | `bool`            | `False`  | `True`: exactly one path between any two cells (no loops). `False`: a board with loops; dead ends are removed wherever the "42" and the border allow it |
 | `seed`      | `int` or `None`   | `None`   | same seed and parameters give the same maze; `None` picks a random seed once |
 
 ### Accessing the maze
@@ -227,7 +286,25 @@ bitmask from `grid.walls(x, y)`, a wall is closed when its bit is set
 
 ### Shortest path
 
-TODO: document once shortest_path() is on main.
+`find_shortest_path` (in `mazegen.pathfinding`) returns a shortest route
+between two cells as a list of `Direction` steps (A* with the Manhattan
+distance), or an empty list if the goal cannot be reached:
+
+```python
+from mazegen import MazeGenerator
+from mazegen.pathfinding import find_shortest_path
+
+gen = MazeGenerator(20, 15, entry=(0, 0), exit_cell=(19, 14), seed=42)
+grid = gen.generate()
+path = find_shortest_path(grid, (0, 0), (19, 14))
+
+letters = ""
+for step in path:
+    letters += step.name
+
+print(len(path))  # 39
+print(letters)    # SSSSSESWSSSSSSSESEEEEEEEEEEEENNESSEEEEE
+```
 
 The full package documentation is in [MAZEGEN.md](MAZEGEN.md).
 
@@ -237,8 +314,8 @@ The full package documentation is in [MAZEGEN.md](MAZEGEN.md).
 
 | Member   | Responsibilities                                                                 |
 |----------|----------------------------------------------------------------------------------|
-| elfemboc | repository setup, grid model, maze generator, terminal display, packaging, Makefile |
-| dpetutsc | configuration parsing, pathfinding (shortest path), output file                  |
+| elfemboc | repository setup, grid model, maze generator, terminal display, main program and error handling, packaging, Makefile, documentation |
+| dpetutsc | configuration parsing, pathfinding (A* shortest path), output file               |
 
 Both members reviewed each other's pull requests.
 
@@ -248,14 +325,34 @@ Both members reviewed each other's pull requests.
   wall bitmask per cell), then work in parallel: generator and display on
   one side, config, pathfinding and output on the other, and wire
   everything together at the end.
-- **Evolved:** TODO: fill in at the end of the project.
+- **Evolved:**
+  - The config parser started inside `mazegen/` and moved to the
+    repository root: parsing our config file belongs to the program, not
+    to the reusable library.
+  - Wiring everything together in `a_maze_ing.py` came last and took longer
+    than planned: every failure (bad config, impossible parameters,
+    unwritable output, `Ctrl+C`) needed a clear message and exit code.
+  - Testing with `maze_analyzer.py` and extreme configs led to late
+    additions: the size limit of 100 and a check for an empty
+    `OUTPUT_FILE`.
+  - To keep momentum near the end, we agreed that the reviewer could push
+    fixes directly to the author's pull request branch instead of only
+    leaving comments.
 
 ### What worked well and what could be improved
 
 - **Worked well:** agreeing on the `Grid` interface early let both of us work
   independently; one branch per task with a reviewed pull request kept
   `main` working at all times.
-- **Could be improved:** TODO: fill in at the end of the project.
+- **Could be improved:**
+  - Write automated tests early and keep them on `main`: our first unit
+    tests stayed on an old branch and went stale when the parser moved.
+  - Agree on a review turnaround at the start (for example within one
+    day). Without one, finished work sometimes waited for review.
+  - Read the whole subject together at the start and write down
+    contradictions right away (the `PERFECT` default).
+  - Build the wheel only from a fresh clone: an early wheel accidentally
+    contained a leftover local file.
 
 ### Tools
 
@@ -263,7 +360,8 @@ Both members reviewed each other's pull requests.
 - `make`, `venv` and `pip` for a reproducible development environment
 - flake8 and mypy (including `--strict`) for style and type checking
 - `build` and setuptools for packaging `mazegen` as a wheel
-- `unittest` for tests of the config parser
+- check scripts outside the repository (and a first `unittest` test of
+  the config parser) to test behaviour before and after each change
 - `maze_analyzer.py` (provided with the subject) to check the output files
 - Neovim as editor
 - Claude (AI assistant), see [AI usage](#ai-usage)
@@ -273,8 +371,14 @@ Both members reviewed each other's pull requests.
 - In playable-board mode, the "42" always leaves exactly 2 dead ends: two
   cells inside the notches of the "2" are enclosed by the pattern on three
   sides, so they cannot get a second opening without touching the "42".
+  `maze_analyzer.py` counts them as enclosed and tolerates them.
 - If the maze is too small for the "42" (smaller than 9x7 cells), it is
   generated without the pattern and an error message is printed.
+- Very small playable boards cannot always have two independent routes:
+  a 2x2 maze has room for only one loop, and a few 5x4 seeds produce only
+  one.
+- `WIDTH` and `HEIGHT` are limited to 100 (see
+  [Configuration file](#configuration-file)).
 
 ## Resources
 
@@ -313,6 +417,16 @@ running it, linting it and comparing it with the code.
 - **Documentation:** first drafts of `MAZEGEN.md`, the docstrings and this
   README, checked against the code (every documented behaviour was tested)
   and edited by us.
+- **Step-by-step guidance for the last phase:** wiring `a_maze_ing.py`,
+  the size limit and the empty `OUTPUT_FILE` check were written by us from
+  skeletons with hints; the AI wrote the test scripts and measured
+  generation times so we could choose the limit ourselves.
+- **Checking the subject:** the AI ran `maze_analyzer.py` on many
+  generated mazes; we ran it on our own output and decided the `PERFECT`
+  default.
+- **Critical review of AI output:** the AI first proposed a callback-based
+  design for the display loop; we questioned it as too complex for a single
+  caller and replaced it with a simpler version.
 
 ## License
 
