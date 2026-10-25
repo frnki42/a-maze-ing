@@ -182,6 +182,14 @@ The playable board also passes `--max-dead-ends 0`, the check for the
 "no dead-end" bonus. The two cells in the notches of the "2" are counted
 as dead ends enclosed by the "42", which the analyzer tolerates.
 
+We also ran a stress test of 10,000 random configurations (sizes 2 to
+100, random entry and exit, both modes). Every maze was generated twice
+from its seed, its shortest path was walked step by step, and the output
+file was checked with the analyzer functions. Result: no crash, no wall
+mismatch, no wrong path, the same maze for the same seed every time, every
+perfect maze perfect and every playable board bonus-grade, except 5 very
+small boards (see [Known limitations](#known-limitations)).
+
 ## Maze generation algorithm
 
 The maze is built in two steps.
@@ -372,9 +380,11 @@ together, and both members reviewed each other's pull requests.
   `maze_analyzer.py` counts them as enclosed and tolerates them.
 - If the maze is too small for the "42" (smaller than 9x7 cells), it is
   generated without the pattern and an error message is printed.
-- Very small playable boards cannot always have two independent routes:
-  a 2x2 maze has room for only one loop, and a few 5x4 seeds produce only
-  one.
+- Very small playable boards do not always get two independent routes.
+  Braiding only opens walls at dead ends: if the maze is already one
+  single ring (every cell has two openings), there is nothing left to
+  open and the board keeps one loop. The stress test below found 5 such
+  boards in 10,000, all 2 cells high; a few 5x4 seeds show the same.
 - `WIDTH` and `HEIGHT` are limited to 100 (see
   [Configuration file](#configuration-file)).
 
