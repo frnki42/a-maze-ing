@@ -231,10 +231,12 @@ same seed and parameters always produce the same maze.
 ## Reusable code: mazegen
 
 The `mazegen` package (`mazegen/` in this repository) contains the maze
-generation: the `MazeGenerator` class and the `Grid` it produces. It does
-not print or write files, so it can be imported into any program. The
-configuration parsing, terminal display and output file are part of the
-A-Maze-ing program, not of the package.
+generation and solving: the `MazeGenerator` class, the `Grid` it
+produces, and `find_shortest_path` (in `mazegen.pathfinding`), which
+returns a shortest path from entry to exit. It does not print or write
+files, so it can be imported into any program. The configuration
+parsing, terminal display and output file are part of the A-Maze-ing
+program, not of the package.
 
 The package is built as a wheel, `mazegen-1.0.0-py3-none-any.whl`, which
 is kept at the repository root. To rebuild it from source:
@@ -383,7 +385,7 @@ together, and both members reviewed each other's pull requests.
 - Very small playable boards do not always get two independent routes.
   Braiding only opens walls at dead ends: if the maze is already one
   single ring (every cell has two openings), there is nothing left to
-  open and the board keeps one loop. The stress test below found 5 such
+  open and the board keeps one loop. The stress test above found 5 such
   boards in 10,000, all 2 cells high; a few 5x4 seeds show the same.
 - `WIDTH` and `HEIGHT` are limited to 100 (see
   [Configuration file](#configuration-file)).
