@@ -1,3 +1,13 @@
+"""Writer for the maze output file (subject IV.5).
+
+``write_maze()`` turns a ``Grid`` and its shortest path into the text
+format described in its docstring, and raises ``OSError`` if the file
+cannot be written. It lives here and not in the reusable ``mazegen``
+package on purpose: the library hands out the maze structure and never
+writes files, and subject VI allows that structure to differ from the
+output format.
+"""
+
 from mazegen.grid import Direction, Grid
 
 
