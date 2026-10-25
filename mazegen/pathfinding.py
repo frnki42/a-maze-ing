@@ -1,3 +1,15 @@
+"""Shortest path between two maze cells with A* search.
+
+``find_shortest_path()`` returns the moves from the entry to the goal as
+``Direction`` values, or ``[]`` if no path exists or both cells are the
+same. A* expands cells in order of ``f = g + h``, where ``g`` is the
+number of steps from the entry and ``h`` the Manhattan distance to the
+goal. ``h`` never overestimates the remaining steps and changes by
+exactly 1 per step (it is admissible and consistent), so an expanded
+cell never gets a shorter path later and the path found is a shortest
+one.
+"""
+
 from heapq import heappop, heappush
 from itertools import count
 

@@ -1,3 +1,17 @@
+"""Parser and validator for the maze configuration file (subject IV.3).
+
+``Config(file_name)`` reads one ``KEY=VALUE`` pair per line into
+attributes, then checks them. Blank lines and comment lines (starting
+with ``#``) are skipped, an unknown key only prints a warning on stderr,
+and if a key appears twice, the last value wins. The keys every file
+must contain are listed in ``_REQUIRED_KEYS``.
+
+Errors are raised, never printed: ``ValueError`` for a missing key, a
+malformed line, an invalid value or a file that is not valid text
+(``UnicodeDecodeError`` is a ``ValueError``), ``OSError`` if the file
+cannot be read. The caller decides how to report them.
+"""
+
 import sys
 
 
