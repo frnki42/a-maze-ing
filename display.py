@@ -71,29 +71,53 @@ class Kind(IntEnum):
 
 
 PALETTES: list[dict[Kind, int]] = [
-    {
-        Kind.WALL: 252,
+    {  # 42
+        Kind.WALL: 238,
+        Kind.FLOOR: 16,
+        Kind.ENTRY: 44,
+        Kind.EXIT: 48,
+        Kind.PATTERN: 255,
+        Kind.PATH: 30,
+    },
+    {  # Nord
+        Kind.WALL: 253,
+        Kind.FLOOR: 237,
+        Kind.ENTRY: 108,
+        Kind.EXIT: 131,
+        Kind.PATTERN: 67,
+        Kind.PATH: 110,
+    },
+    {  # Gruvbox Dark
+        Kind.WALL: 223,
+        Kind.FLOOR: 235,
+        Kind.ENTRY: 142,
+        Kind.EXIT: 167,
+        Kind.PATTERN: 214,
+        Kind.PATH: 109,
+    },
+    {  # Solarized Dark
+        Kind.WALL: 245,
         Kind.FLOOR: 234,
-        Kind.ENTRY: 201,
-        Kind.EXIT: 196,
-        Kind.PATTERN: 220,
-        Kind.PATH: 45,
+        Kind.ENTRY: 64,
+        Kind.EXIT: 160,
+        Kind.PATTERN: 136,
+        Kind.PATH: 33,
     },
-    {
-        Kind.WALL: 172,
+    {  # Catppuccin Mocha
+        Kind.WALL: 111,
+        Kind.FLOOR: 235,
+        Kind.ENTRY: 151,
+        Kind.EXIT: 211,
+        Kind.PATTERN: 216,
+        Kind.PATH: 229,
+    },
+    {  # Graphite: grey shades with green and white highlights
+        Kind.WALL: 240,
         Kind.FLOOR: 233,
-        Kind.ENTRY: 201,
-        Kind.EXIT: 196,
-        Kind.PATTERN: 223,
-        Kind.PATH: 228,
-    },
-    {
-        Kind.WALL: 42,
-        Kind.FLOOR: 24,
-        Kind.ENTRY: 204,
-        Kind.EXIT: 224,
-        Kind.PATTERN: 242,
-        Kind.PATH: 142,
+        Kind.ENTRY: 255,
+        Kind.EXIT: 46,
+        Kind.PATTERN: 250,
+        Kind.PATH: 35,
     },
 ]
 
