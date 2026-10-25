@@ -63,6 +63,14 @@ class Kind(IntEnum):
 
 
 PALETTES: list[dict[Kind, int]] = [
+    {  # 42
+        Kind.WALL: 238,
+        Kind.FLOOR: 16,
+        Kind.ENTRY: 44,
+        Kind.EXIT: 48,
+        Kind.PATTERN: 255,
+        Kind.PATH: 30,
+    },
     {  # Nord
         Kind.WALL: 253,
         Kind.FLOOR: 237,
@@ -78,14 +86,6 @@ PALETTES: list[dict[Kind, int]] = [
         Kind.EXIT: 167,
         Kind.PATTERN: 214,
         Kind.PATH: 109,
-    },
-    {  # Dracula
-        Kind.WALL: 141,
-        Kind.FLOOR: 236,
-        Kind.ENTRY: 84,
-        Kind.EXIT: 203,
-        Kind.PATTERN: 212,
-        Kind.PATH: 117,
     },
     {  # Solarized Dark
         Kind.WALL: 245,
