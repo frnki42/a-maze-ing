@@ -82,6 +82,8 @@ In the bitmask from `grid.walls(x, y)`, a wall is closed when its bit is set
 (`N` = 1, `E` = 2, `S` = 4, `W` = 8):
 
 ```python
+from mazegen.grid import Direction
+
 if grid.walls(0, 0) & Direction.N:
     print("north wall of (0, 0) is closed")
 ```
